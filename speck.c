@@ -239,7 +239,17 @@ void run_tests(struct suite *suite)
         suite->states[i]->pid = 0;
         suite->states[i]->stat_loc = 0;
 
-        if (flags.fork_mode) {
+        if (NULL == test) {
+          state->assertions = realloc(state->assertions, (state->index + 1) * sizeof(char*));
+          alloc_sprintf(&(state->assertions[state->index]), "%s: Skipped. Couldn't find symbol in file.", state->function);
+          state->codes = realloc(state->codes, (state->index + 1) * sizeof(int*));
+          state->codes[state->index] = 1;
+          state->index++;
+
+          suite->states[i]->index = state->index;
+          suite->states[i]->assertions = state->assertions;
+          suite->states[i]->codes = state->codes;
+        } else if (flags.fork_mode) {
             // Forking mode
             int msqid = msgget(IPC_PRIVATE, IPC_CREAT | 0600);
             if (msqid == -1) {
